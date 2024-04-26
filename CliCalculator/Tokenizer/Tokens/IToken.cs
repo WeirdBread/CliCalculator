@@ -1,5 +1,4 @@
-﻿using System;
-namespace CliCalculator.Tokenizer.Tokens
+﻿namespace CliCalculator.Tokenizer.Tokens
 {
     public interface IToken
     {

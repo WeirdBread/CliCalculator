@@ -41,7 +41,7 @@ namespace CliCalculator.Calculator
                                 stack.Push(new OperandToken(secondOperand.Number / firstOperand.Number));
                                 break;
                             case OperatorType.Power:
-                                stack.Push(new OperandToken(secondOperand.Number ^ firstOperand.Number));
+                                stack.Push(new OperandToken((int)Math.Pow((double)secondOperand.Number, (double)firstOperand.Number)));
                                 break;
                         }
                         break;
