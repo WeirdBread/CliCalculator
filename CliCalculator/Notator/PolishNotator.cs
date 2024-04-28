@@ -22,6 +22,7 @@ namespace CliCalculator.Notator
                     case TokenType.UnaryOperator:
                         stack.Push(token);
                         break;
+                    case TokenType.Dice:
                     case TokenType.BinaryOperator:
                         var operatorToken = (IOperator)token;
                         while (stack.TryPeek(out var stackToken))

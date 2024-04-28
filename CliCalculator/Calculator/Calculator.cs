@@ -8,9 +8,12 @@ namespace CliCalculator.Calculator
         public Calculator(IToken[] tokens)
         {
             this.tokens = tokens;
+            this.DiceResults = new List<DiceEvaluationResult>();
         }
 
         private readonly IToken[] tokens;
+
+        public IList<DiceEvaluationResult> DiceResults { get; private set; }
 
         public int ResolveExpression()
         {
@@ -49,6 +52,15 @@ namespace CliCalculator.Calculator
                                 stack.Push(new OperandToken((int)Math.Pow(leftOperand.Number, rightOperand.Number)));
                                 break;
                         }
+                        break;
+                    case TokenType.Dice:
+                        rightOperand= (OperandToken)stack.Pop();
+                        leftOperand = ((DiceToken)token).IsSingleDie ? null : (OperandToken)stack.Pop();
+
+                        var diceResult = DiceEvaluator.EvaluateDice((DiceToken)token, leftOperand, rightOperand);
+                        this.DiceResults.Add(diceResult);
+
+                        stack.Push(new OperandToken(diceResult.Sum));
                         break;
                     default:
                         break;

@@ -2,38 +2,11 @@
 
 namespace CliCalculator.Calculator
 {
-    public class DiceEvaluator
+    public static class DiceEvaluator
     {
-        public DiceEvaluator(IEnumerable<IToken> tokens)
+        public static DiceEvaluationResult EvaluateDice(DiceToken diceToken, OperandToken? leftOperand, OperandToken rightOperand)
         {
-            this.Tokens = tokens.ToList();
-            this.Result = new List<DiceEvaluationResult>();
-        }
-
-        public IList<IToken> Tokens { get; private set; }
-
-        public IList<DiceEvaluationResult> Result { get; private set; }
-
-        public IEnumerable<IToken> EvaluateDice()
-        {
-            for (int i = 0; i < this.Tokens.Count; i++)
-            {
-                if (this.Tokens[i] is DiceToken diceToken)
-                {
-                    var leftOperandNumber = ((OperandToken)this.Tokens[i - 1]).Number;
-                    var rightOperandNumber = ((OperandToken)this.Tokens[i + 1]).Number;
-
-                    var result = GetResult(leftOperandNumber, rightOperandNumber, diceToken.Modificator);
-                    this.Result.Add(result);
-
-                    this.Tokens[i] = new OperandToken(result.Sum);
-                    this.Tokens.Remove(this.Tokens[i - 1]);
-                    this.Tokens.Remove(this.Tokens[i]);
-
-                }
-            }
-
-            return this.Tokens;
+            return GetResult(leftOperand?.Number ?? 1, rightOperand.Number, diceToken.Modificator);
         }
 
         private static DiceEvaluationResult GetResult(int diceToRoll, int edges, DiceModificator modificator)
@@ -90,30 +63,24 @@ namespace CliCalculator.Calculator
         }
 
 
-        public sealed class DiceEvaluationResult
+    }
+
+    public class DiceEvaluationResult
+    {
+        public DiceEvaluationResult()
         {
-            public DiceEvaluationResult()
-            {
-                this.DiceRolled = new List<int>();
-            }
+            this.DiceRolled = new List<int>();
+        }
 
-            public DiceEvaluationResult(string expression, int sum, params int[] diceRolled)
-            {
-                this.Expression = expression;
-                this.Sum = sum;
-                this.DiceRolled = diceRolled.ToList();
-            }
+        public string? Expression { get; set; }
 
-            public string? Expression { get; set; }
+        public int Sum { get; set; }
 
-            public int Sum { get; set; }
+        public IList<int> DiceRolled { get; set; }
 
-            public IList<int> DiceRolled { get; set; }
-
-            public override string ToString()
-            {
-                return $"{this.Expression} = {this.Sum} [{string.Join(", ", DiceRolled)}]";
-            }
+        public override string ToString()
+        {
+            return $"{this.Expression} = {this.Sum} [{string.Join(", ", DiceRolled)}]";
         }
     }
 }

@@ -57,7 +57,8 @@ namespace CliCalculator.Tokenizer
                         result.Add(new CloseParenthesisToken());
                         break;
                     case var t when t is "d":
-                        result.Add(new DiceToken());
+                        var isSingleDie = result.Count is 0 || result[^1] is not OperandToken;
+                        result.Add(new DiceToken(isSingleDie));
                         break;
                     case var t when t is "kh" or "kl":
                         var previousDiceToken = result.Last(x => x is DiceToken) as DiceToken;
