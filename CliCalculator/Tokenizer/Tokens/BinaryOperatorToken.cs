@@ -1,6 +1,6 @@
 ﻿namespace CliCalculator.Tokenizer.Tokens
 {
-    public class BinaryOperatorToken : IToken
+    public class BinaryOperatorToken : IOperator
     {
         public static readonly char[] operatorSymbols = { '+', '-', '/', '*', '^' };
 
