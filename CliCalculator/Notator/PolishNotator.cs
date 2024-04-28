@@ -27,7 +27,7 @@ namespace CliCalculator.Notator
                         if (stack.TryPeek(out var stackToken))
                         {
                             if ((stackToken is BinaryOperatorToken binaryStackOperator && binaryStackOperator.Priority >= operatorToken.Priority)
-                                || (stackToken is UnaryOperatorToken))
+                                || (stackToken is UnaryOperatorToken && operatorToken.Priority == 0))
                             {
                                 while (stack.Count > 0 && stack.Peek() is BinaryOperatorToken or UnaryOperatorToken)
                                 {
