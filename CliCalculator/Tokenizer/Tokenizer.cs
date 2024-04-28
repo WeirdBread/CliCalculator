@@ -30,26 +30,34 @@ namespace CliCalculator.Tokenizer
 
         public IEnumerable<IToken> GetResult()
         {
-            foreach (var token in this.tokens)
+            var result = new List<IToken>();
+            for (var i = 0; i < this.tokens.Count; i++)
             {
-                switch (token)
+                switch (this.tokens[i])
                 {
                     case var t when int.TryParse(t, out var tInt) :
-                        yield return new OperandToken(tInt);
+                        result.Add(new OperandToken(tInt));
+                        break;
+                    case var t when t.Length is 1 && t is "-" or "+" && (result.LastOrDefault() is null or not (OperandToken or CloseParenthesisToken)):
+                        if (t is "-")
+                        {
+                            result.Add(new UnaryOperatorToken());
+                        }
                         break;
                     case var t when t.Length is 1 && BinaryOperatorToken.operatorSymbols.Contains(t[0]) :
-                        yield return new BinaryOperatorToken(t[0]);
+                        result.Add(new BinaryOperatorToken(t[0]));
                         break;
                     case "(":
-                        yield return new OpenParenthesisToken();
+                        result.Add(new OpenParenthesisToken());
                         break;
                     case ")":
-                        yield return new CloseParenthesisToken();
+                        result.Add(new CloseParenthesisToken());
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             }
+            return result;
         }
     }
 }

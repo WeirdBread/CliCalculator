@@ -14,9 +14,12 @@
 
         public int Number { get; private set; }
 
-        public override string ToString()
+        public override string ToString() => Symbol;
+
+        public void Inverse()
         {
-            return Symbol;
+            Number = -Number;
+            Symbol = Symbol.StartsWith('-') ? Symbol[1..] : "-" + Symbol;
         }
     }
 }

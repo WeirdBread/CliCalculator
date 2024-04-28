@@ -2,7 +2,7 @@
 {
     public class CloseParenthesisToken : IToken
     {
-        public string Symbol => "(";
+        public string Symbol => ")";
 
         public TokenType Type => TokenType.CloseParenthesis;
 
