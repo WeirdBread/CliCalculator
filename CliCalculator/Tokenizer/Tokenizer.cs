@@ -47,6 +47,9 @@ namespace CliCalculator.Tokenizer
                     case var t when t.Length is 1 && BinaryOperatorToken.operatorSymbols.Contains(t[0]) :
                         result.Add(new BinaryOperatorToken(t[0]));
                         break;
+                    case var t when t is "d":
+                        result.Add(new DiceToken());
+                        break;
                     case "(":
                         result.Add(new OpenParenthesisToken());
                         break;

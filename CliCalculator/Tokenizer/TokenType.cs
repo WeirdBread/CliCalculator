@@ -7,6 +7,7 @@
         UnaryOperator,
         BinaryOperator,
         OpenParenthesis,
-        CloseParenthesis
+        CloseParenthesis,
+        Dice
     }
 }
