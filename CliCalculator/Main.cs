@@ -17,6 +17,8 @@ var diceEvaluator = new DiceEvaluator(tokens);
 
 tokens = diceEvaluator.EvaluateDice();
 
+Console.WriteLine(string.Join("; ", diceEvaluator.Result));
+
 Console.WriteLine(string.Join(" ", tokens));
 
 var polishTokens = PolishNotator.PolandizeTokens(tokens);

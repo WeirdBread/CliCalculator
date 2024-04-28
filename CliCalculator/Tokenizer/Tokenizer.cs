@@ -17,11 +17,14 @@ namespace CliCalculator.Tokenizer
                     continue;
                 }
 
-                if (tokens.Any() && char.IsDigit(expression[i]) && char.IsDigit(expression[i - 1]))
+                if (tokens.Any() 
+                    && (char.IsDigit(expression[i]) && char.IsDigit(expression[i - 1])
+                        || char.IsLetter(expression[i]) && char.IsLetter(expression[i - 1])))
                 {
                     tokens[^1] += expression[i];
                     continue;
                 }
+
                 tokens.Add(expression[i].ToString());
             }
 
@@ -47,14 +50,21 @@ namespace CliCalculator.Tokenizer
                     case var t when t.Length is 1 && BinaryOperatorToken.operatorSymbols.Contains(t[0]) :
                         result.Add(new BinaryOperatorToken(t[0]));
                         break;
-                    case var t when t is "d":
-                        result.Add(new DiceToken());
-                        break;
                     case "(":
                         result.Add(new OpenParenthesisToken());
                         break;
                     case ")":
                         result.Add(new CloseParenthesisToken());
+                        break;
+                    case var t when t is "d":
+                        result.Add(new DiceToken());
+                        break;
+                    case var t when t is "kh" or "kl":
+                        var previousDiceToken = result.Last(x => x is DiceToken) as DiceToken;
+                        if (previousDiceToken is not null)
+                        {
+                            previousDiceToken.Modificator = t is "kh" ? DiceModificator.KeepHigh : DiceModificator.KeepLow;
+                        }
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

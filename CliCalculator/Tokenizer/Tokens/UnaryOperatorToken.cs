@@ -4,7 +4,7 @@
     {
         public UnaryOperatorToken()
         {
-            Symbol = "-";
+            Symbol = "u-";
         }
 
         public TokenType Type => TokenType.UnaryOperator;
