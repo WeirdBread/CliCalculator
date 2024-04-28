@@ -23,17 +23,16 @@ namespace CliCalculator.Notator
                         stack.Push(token);
                         break;
                     case TokenType.BinaryOperator:
-                        var operatorToken = (BinaryOperatorToken)token;
-                        if (stack.TryPeek(out var stackToken))
+                        var operatorToken = (IOperator)token;
+                        while (stack.TryPeek(out var stackToken))
                         {
-                            if ((stackToken is BinaryOperatorToken binaryStackOperator && binaryStackOperator.Priority >= operatorToken.Priority)
-                                || (stackToken is UnaryOperatorToken && operatorToken.Priority == 0))
+                            if (stackToken is IOperator stackOperator && stackOperator.Priority >= operatorToken.Priority
+                                || (stackToken is UnaryOperatorToken && operatorToken.Priority > 0))
                             {
-                                while (stack.Count > 0 && stack.Peek() is BinaryOperatorToken or UnaryOperatorToken)
-                                {
-                                    result.Add(stack.Pop());
-                                }
+                                result.Add(stack.Pop());
+                                continue;
                             }
+                            break;
                         }
 
                         stack.Push(operatorToken);
