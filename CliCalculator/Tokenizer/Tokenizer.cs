@@ -1,4 +1,5 @@
 ﻿using CliCalculator.Tokenizer.Tokens;
+using System.Globalization;
 
 namespace CliCalculator.Tokenizer
 {
@@ -10,6 +11,7 @@ namespace CliCalculator.Tokenizer
         {
             var tokens = new List<string>();
 
+            string? buffer = null;
             for (int i = 0; i < expression.Length; i++)
             {
                 if (char.IsWhiteSpace(expression[i]))
@@ -17,15 +19,24 @@ namespace CliCalculator.Tokenizer
                     continue;
                 }
 
-                if (tokens.Any() 
-                    && (char.IsDigit(expression[i]) && char.IsDigit(expression[i - 1])
-                        || char.IsLetter(expression[i]) && char.IsLetter(expression[i - 1])))
+                if (char.IsLetter(expression[i]) || char.IsDigit(expression[i]) || expression[i] == '.')
                 {
-                    tokens[^1] += expression[i];
+                    buffer += expression[i];
                     continue;
                 }
 
+                if (buffer is not null)
+                {
+                    tokens.Add(buffer);
+                    buffer = null;
+                }
+
                 tokens.Add(expression[i].ToString());
+            }
+
+            if (buffer is not null)
+            {
+                tokens.Add(buffer);
             }
 
             this.tokens = tokens;
@@ -39,16 +50,16 @@ namespace CliCalculator.Tokenizer
             {
                 switch (this.tokens[i])
                 {
-                    case var t when int.TryParse(t, out var tInt) && (result.Count < 2 || result[^2] is not DiceToken):
-                        result.Add(new OperandToken(tInt));
+                    case var t when double.TryParse(t, NumberStyles.Any, CultureInfo.InvariantCulture, out var tDouble) :
+                        result.Add(new OperandToken(tDouble));
                         break;
-                    case var t when t is "-" or "+" && (result.LastOrDefault() is null or not (OperandToken or CloseParenthesisToken)):
+                    case var t when t is "-" && (result.LastOrDefault() is null or not (OperandToken or CloseParenthesisToken)):
                         if (t is "-")
                         {
                             result.Add(new UnaryOperatorToken());
                         }
                         break;
-                    case var t when t.Length is 1 && BinaryOperatorToken.operatorSymbols.Contains(t[0]):
+                    case var t when BinaryOperatorToken.operatorSymbols.Contains(t[0]) :
                         result.Add(new BinaryOperatorToken(t[0]));
                         break;
                     case "(":

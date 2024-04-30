@@ -15,7 +15,7 @@ namespace CliCalculator.Calculator
 
         public IList<DiceEvaluationResult> DiceResults { get; private set; }
 
-        public int ResolveExpression()
+        public double ResolveExpression()
         {
             var stack = new Stack<IToken>();
 
@@ -49,7 +49,7 @@ namespace CliCalculator.Calculator
                                 stack.Push(new OperandToken(leftOperand.Number / rightOperand.Number));
                                 break;
                             case OperatorType.Power:
-                                stack.Push(new OperandToken((int)Math.Pow(leftOperand.Number, rightOperand.Number)));
+                                stack.Push(new OperandToken(Math.Pow(leftOperand.Number, rightOperand.Number)));
                                 break;
                         }
                         break;

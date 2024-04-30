@@ -2,7 +2,7 @@
 {
     public class OperandToken : IToken
     {
-        public OperandToken(int digit)
+        public OperandToken(double digit)
         {
             Number = digit;
             Symbol = digit.ToString();
@@ -12,7 +12,7 @@
 
         public string Symbol { get; private set; }
 
-        public int Number { get; private set; }
+        public double Number { get; private set; }
 
         public override string ToString() => Symbol;
 
