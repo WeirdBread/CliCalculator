@@ -22,8 +22,9 @@ namespace CliCalculator.Tokenizer
 
                 var charIsDigit = char.IsDigit(expression[i]);
                 var charIsLetter = char.IsLetter(expression[i]);
+                var charIsPoint = expression[i] is '.';
 
-                if ((charIsDigit || charIsLetter || expression[i] == '.') && expression[i] != 'd')
+                if ((charIsDigit || charIsLetter || charIsPoint) && expression[i] != 'd')
                 {
                     if (buffer.BufferString is null)
                     {
@@ -31,7 +32,7 @@ namespace CliCalculator.Tokenizer
                         buffer.IsNumber = charIsDigit;
                         continue;
                     } 
-                    else if ((buffer.IsNumber && charIsDigit) || (!buffer.IsNumber && charIsLetter))
+                    else if ((buffer.IsNumber && (charIsDigit || charIsPoint)) || (!buffer.IsNumber && charIsLetter))
                     {
                         buffer.BufferString += expression[i];
                         continue;
