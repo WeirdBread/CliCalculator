@@ -24,3 +24,6 @@ var calculator = new Calculator(polishTokens.ToArray());
 Console.WriteLine(calculator.ResolveExpression());
 
 Console.WriteLine(string.Join("; ", calculator.DiceResults));
+
+Console.WriteLine("Press any key...");
+Console.ReadKey();

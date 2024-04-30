@@ -34,20 +34,21 @@ namespace CliCalculator.Tokenizer
         public IEnumerable<IToken> GetResult()
         {
             var result = new List<IToken>();
+            int? diceModBuffer = null;
             for (var i = 0; i < this.tokens.Count; i++)
             {
                 switch (this.tokens[i])
                 {
-                    case var t when int.TryParse(t, out var tInt) :
+                    case var t when int.TryParse(t, out var tInt) && (result.Count < 2 || result[^2] is not DiceToken):
                         result.Add(new OperandToken(tInt));
                         break;
-                    case var t when t.Length is 1 && t is "-" or "+" && (result.LastOrDefault() is null or not (OperandToken or CloseParenthesisToken)):
+                    case var t when t is "-" or "+" && (result.LastOrDefault() is null or not (OperandToken or CloseParenthesisToken)):
                         if (t is "-")
                         {
                             result.Add(new UnaryOperatorToken());
                         }
                         break;
-                    case var t when t.Length is 1 && BinaryOperatorToken.operatorSymbols.Contains(t[0]) :
+                    case var t when t.Length is 1 && BinaryOperatorToken.operatorSymbols.Contains(t[0]):
                         result.Add(new BinaryOperatorToken(t[0]));
                         break;
                     case "(":
@@ -60,11 +61,29 @@ namespace CliCalculator.Tokenizer
                         var isSingleDie = result.Count is 0 || result[^1] is not OperandToken;
                         result.Add(new DiceToken(isSingleDie));
                         break;
-                    case var t when t is "kh" or "kl":
-                        var previousDiceToken = result.Last(x => x is DiceToken) as DiceToken;
+                    case var t when DiceToken.AvailableModifiersTags.Contains(t):
+                        var previousDiceToken = result.Count < 2 ? null : result[^2] as DiceToken;
                         if (previousDiceToken is not null)
                         {
-                            previousDiceToken.Modificator = t is "kh" ? DiceModificator.KeepHigh : DiceModificator.KeepLow;
+                            var newMod = previousDiceToken.AddModificator(t);
+                            if (newMod is not null && newMod.IsLeftOriented)
+                            {
+                                newMod.Param = diceModBuffer;
+                                diceModBuffer = null;
+                            }
+                        }
+                        break;
+                    case var t when int.TryParse(t, out var tInt):
+                        previousDiceToken = result.Count < 2 ? null : result[^2] as DiceToken;
+                        if (previousDiceToken is not null)
+                        {
+                            var diceMod = previousDiceToken.Modificators.LastOrDefault();
+                            if (diceMod is not null && !diceMod.IsLeftOriented) 
+                            {
+                                diceMod.Param = tInt;
+                                break;
+                            }
+                            diceModBuffer = tInt;
                         }
                         break;
                     default:
