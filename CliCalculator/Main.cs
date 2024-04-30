@@ -22,7 +22,7 @@ Console.WriteLine(string.Join(" ", polishTokens));
 
 var calculator = new Calculator(polishTokens.ToArray());
 
-Console.WriteLine(calculator.ResolveExpression().ToString("N2", CultureInfo.InvariantCulture));
+Console.WriteLine(calculator.ResolveExpression().ToString("0.##", CultureInfo.InvariantCulture));
 
 Console.WriteLine(string.Join("; ", calculator.DiceResults));
 

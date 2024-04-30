@@ -6,7 +6,7 @@ namespace CliCalculator.Calculator
     {
         public static DiceEvaluationResult EvaluateDice(DiceToken diceToken, OperandToken? leftOperand, OperandToken rightOperand)
         {
-            return EvaluateDice(leftOperand?.Number ?? 1, rightOperand.Number, diceToken.Modificators);
+            return EvaluateDice((int)(leftOperand?.Number ?? 1), (int)rightOperand.Number, diceToken.Modificators);
         }
 
         private static DiceEvaluationResult EvaluateDice(int diceToRoll, int edges, IList<DiceModificator> modificators)
