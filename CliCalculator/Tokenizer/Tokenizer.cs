@@ -17,6 +17,10 @@ namespace CliCalculator.Tokenizer
             {
                 if (char.IsWhiteSpace(expression[i]))
                 {
+                    if (buffer.BufferString is not null)
+                    {
+                        tokens.Add(buffer.ToStringAndClear()!);
+                    }
                     continue;
                 }
 
@@ -41,7 +45,7 @@ namespace CliCalculator.Tokenizer
 
                 if (buffer.BufferString is not null)
                 {
-                    tokens.Add(buffer.BufferString);
+                    tokens.Add(buffer.ToStringAndClear()!);
                     if (charIsDigit || charIsLetter)
                     {
                         buffer.BufferString = expression[i].ToString();
@@ -50,7 +54,6 @@ namespace CliCalculator.Tokenizer
                     else
                     {
                         tokens.Add(expression[i].ToString());
-                        buffer.BufferString = null;
                     }
                     continue;
                 }
@@ -60,7 +63,7 @@ namespace CliCalculator.Tokenizer
 
             if (buffer.BufferString is not null)
             {
-                tokens.Add(buffer.BufferString);
+                tokens.Add(buffer.ToStringAndClear()!);
             }
 
             this.tokens = tokens;
@@ -94,15 +97,19 @@ namespace CliCalculator.Tokenizer
                         var isSingleDie = result.Count is 0 || result[^1] is not OperandToken;
                         result.Add(new DiceToken(isSingleDie));
                         break;
-                    case var t when DiceToken.AvailableModifiersTags.Contains(t):
+                    case var t when DiceToken.AvailableModifiersTags.Any(x => t.Contains(x)):
+                        var mods = ParseDiceMods(t);
                         var previousDiceToken = result.Count < 2 ? null : result[^2] as DiceToken;
                         if (previousDiceToken is not null)
                         {
-                            var newMod = previousDiceToken.AddModificator(t);
-                            if (newMod is not null && newMod.IsLeftOriented)
+                            foreach (var mod in mods)
                             {
-                                newMod.Param = diceModBuffer;
-                                diceModBuffer = null;
+                                var newMod = previousDiceToken.AddModificator(mod);
+                                if (newMod is not null && newMod.IsLeftOriented)
+                                {
+                                    newMod.Param = diceModBuffer;
+                                    diceModBuffer = null;
+                                }
                             }
                         }
                         break;
@@ -126,10 +133,37 @@ namespace CliCalculator.Tokenizer
             return result;
         }
 
+        private static IEnumerable<string> ParseDiceMods(string input)
+        {
+            var result = new List<string>();
+            var mod = DiceToken.AvailableModifiersTags.FirstOrDefault(x => input.Contains(x));
+            if (mod is null)
+            {
+                return result;
+            }
+            
+            result.Add(mod);
+            var restOfInput = input.Remove(0, mod.Length);
+            if (!string.IsNullOrEmpty(restOfInput)) 
+            {
+                result.AddRange(ParseDiceMods(restOfInput));
+            }
+
+            return result;
+        }
+
         private struct Buffer
         {
             public string? BufferString { get; set; }
             public bool IsNumber { get; set; }
+
+            public string? ToStringAndClear()
+            {
+                var result = this.BufferString;
+                this.BufferString = null;
+                this.IsNumber = false;
+                return result;
+            }
         }
     }
 }

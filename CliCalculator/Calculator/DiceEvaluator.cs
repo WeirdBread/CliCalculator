@@ -72,7 +72,10 @@ namespace CliCalculator.Calculator
                         }
                         break;
                 }
-                rollResult.Expression += mod.Type.GetDescription() + mod.Param;
+
+                rollResult.Expression += mod.IsLeftOriented
+                    ? " " + mod.Param + mod.Type.GetDescription()
+                    : mod.Type.GetDescription() + mod.Param;
             }
 
             return rollResult;

@@ -4,7 +4,7 @@ namespace CliCalculator.Tokenizer.Tokens
 {
     public class DiceToken : IOperator
     {
-        public static readonly string[] AvailableModifiersTags = { "kh", "kl", "rkh", "rkl", "!", "<", ">" };
+        public static readonly string[] AvailableModifiersTags = { "rkh", "rkl", "kh", "kl", "!", "<", ">" };
 
         public DiceToken(bool isSingleDie)
         {
@@ -33,8 +33,8 @@ namespace CliCalculator.Tokenizer.Tokens
             {
                 "kh" => new DiceModificator(DiceModificatorType.KeepHigh, param),
                 "kl" => new DiceModificator(DiceModificatorType.KeepLow, param),
-                "rkh" => new DiceModificator(DiceModificatorType.RerollKeepHigh, param),
-                "rkl" => new DiceModificator(DiceModificatorType.RerollKeepLow, param),
+                "rkh" => new DiceModificator(DiceModificatorType.RerollKeepHigh, param, true),
+                "rkl" => new DiceModificator(DiceModificatorType.RerollKeepLow, param, true),
                 "!" => new DiceModificator(DiceModificatorType.Explosive),
                 "<" => new DiceModificator(DiceModificatorType.LessThan, param),
                 ">" => new DiceModificator(DiceModificatorType.MoreThan, param),
@@ -57,7 +57,7 @@ namespace CliCalculator.Tokenizer.Tokens
 
     public enum DiceModificatorType
     {
-        None = 0b0,
+        None,
 
         [Description("kh")]
         KeepHigh,
@@ -102,10 +102,11 @@ namespace CliCalculator.Tokenizer.Tokens
         {
             return type switch
             {
+                DiceModificatorType.MoreThan or DiceModificatorType.LessThan => 0,
                 DiceModificatorType.KeepLow or DiceModificatorType.KeepHigh => 1,
                 DiceModificatorType.RerollKeepHigh or DiceModificatorType.RerollKeepLow => 2,
                 DiceModificatorType.Explosive => 3,
-                _ => 0
+                _ => -1
             };
         }
     }
