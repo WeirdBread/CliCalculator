@@ -26,7 +26,7 @@ namespace CliCalculator.Tokenizer
                 if (token is null) 
                     continue;
 
-                if (token is OperatorToken operatorToken && (!result.Any() || result[^1] is OperatorToken or OpenParenthesisToken))
+                if (token is MathOperatorToken operatorToken && (!result.Any() || result[^1] is MathOperatorToken or OpenParenthesisToken))
                 {
                     operatorToken.ConvertToUnary();
                 }

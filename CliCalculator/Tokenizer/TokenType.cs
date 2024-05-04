@@ -4,7 +4,7 @@
     {
         Unknown,
         Operand,
-        Operator,
+        MathOperator,
         OpenParenthesis,
         CloseParenthesis
     }

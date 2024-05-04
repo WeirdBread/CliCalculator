@@ -1,10 +1,10 @@
 ﻿namespace CliCalculator.Tokenizer.Tokens
 {
-    public class OperatorToken : IToken
+    public class  MathOperatorToken: IOperator
     {
         public static readonly char[] operatorSymbols = { '+', '-', '/', '*', '^' };
 
-        public OperatorToken(char operatorChar)
+        public MathOperatorToken(char operatorChar)
         {
             Symbol = operatorChar.ToString();
             this.OperatorType = operatorChar switch
@@ -22,7 +22,7 @@
 
         public int Priority { get; private set; }
 
-        public TokenType Type => TokenType.Operator;
+        public TokenType Type => TokenType.MathOperator;
 
         public OperatorType OperatorType { get; private set; }
 
@@ -49,6 +49,27 @@
             this.Symbol = "u" + this.Symbol;
             this.OperatorType = OperatorType.UnaryMinus;
             this.Priority = 3;
+        }
+
+        public IToken DoOperation(OperandToken? leftOperand, OperandToken? rightOperand)
+        {
+            switch (this.OperatorType)
+            {
+                case OperatorType.UnaryMinus:
+                    return new OperandToken(rightOperand.Number * -1);
+                case OperatorType.Sum:
+                    return new OperandToken(leftOperand!.Number + rightOperand.Number);
+                case OperatorType.Subtract:
+                    return new OperandToken(leftOperand!.Number - rightOperand.Number);
+                case OperatorType.Multiply:
+                    return new OperandToken(leftOperand!.Number * rightOperand.Number);
+                case OperatorType.Divide:
+                    return new OperandToken(leftOperand!.Number / rightOperand.Number);
+                case OperatorType.Power:
+                    return new OperandToken(Math.Pow(leftOperand!.Number, rightOperand.Number));
+                default:
+                    throw new InvalidOperationException();
+            }
         }
     }
 

@@ -17,11 +17,8 @@ using System.Globalization;
 
         var tokenizer = new Tokenizer(input, TokenFactory.Instance);
 
-        //var tokens = tokenizer.GenerateTokens();
-        //Console.WriteLine(tokens);
-
-        //var polisthTokens = PolishNotator.PolandizeTokens(tokens);
-        //Console.WriteLine(polisthTokens);
+        var tokens = tokenizer.GenerateTokens();
+        Console.WriteLine(tokens);
 
         try
         {
