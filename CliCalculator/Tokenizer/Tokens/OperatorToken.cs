@@ -1,10 +1,10 @@
 ﻿namespace CliCalculator.Tokenizer.Tokens
 {
-    public class BinaryOperatorToken : IOperator
+    public class OperatorToken : IToken
     {
         public static readonly char[] operatorSymbols = { '+', '-', '/', '*', '^' };
 
-        public BinaryOperatorToken(char operatorChar)
+        public OperatorToken(char operatorChar)
         {
             Symbol = operatorChar.ToString();
             this.OperatorType = operatorChar switch
@@ -22,7 +22,7 @@
 
         public int Priority { get; private set; }
 
-        public TokenType Type => TokenType.BinaryOperator;
+        public TokenType Type => TokenType.Operator;
 
         public OperatorType OperatorType { get; private set; }
 
@@ -43,10 +43,18 @@
                 _ => throw new ArgumentOutOfRangeException(),
             };
         }
+
+        public void ConvertToUnary()
+        {
+            this.Symbol = "u" + this.Symbol;
+            this.OperatorType = OperatorType.UnaryMinus;
+            this.Priority = 3;
+        }
     }
 
     public enum OperatorType
     {
+        UnaryMinus,
         Sum,
         Subtract,
         Multiply,

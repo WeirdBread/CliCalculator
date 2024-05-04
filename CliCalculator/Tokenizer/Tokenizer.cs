@@ -1,61 +1,49 @@
-﻿using CliCalculator.Tokenizer.Tokens;
-using System.Globalization;
+﻿using CliCalculator.Tokenizer.TokenFactories;
+using CliCalculator.Tokenizer.Tokens;
 
 namespace CliCalculator.Tokenizer
 {
-    public class Tokenizer
+    public class Tokenizer : ITokenizer
     {
-        private readonly List<string> tokens;
+        private readonly string inputExpression = string.Empty;
 
-        public Tokenizer(string expression)
+        private readonly ITokenFactory tokenFactory;
+
+        public Tokenizer(string inputExpression, ITokenFactory tokenFactory)
+        {
+            this.inputExpression = inputExpression;
+            this.tokenFactory = tokenFactory;
+        }
+
+        public TokenCollection GenerateTokens()
+        {
+            var result = new TokenCollection();
+            var splitedExpression = this.SplitByTokens();
+
+            for (var i = 0; i < splitedExpression.Count; i++)
+            {
+                var token = this.tokenFactory.CreateToken(splitedExpression[i]);
+                if (token is null) 
+                    continue;
+
+                if (token is OperatorToken operatorToken && (!result.Any() || result[^1] is OperatorToken or OpenParenthesisToken))
+                {
+                    operatorToken.ConvertToUnary();
+                }
+
+                result.Add(token);
+            }
+            return result;
+        }
+
+        private List<string> SplitByTokens()
         {
             var tokens = new List<string>();
-
             var buffer = new Buffer();
 
-            for (int i = 0; i < expression.Length; i++)
+            for (int i = 0; i < inputExpression.Length; i++)
             {
-                if (char.IsWhiteSpace(expression[i]))
-                {
-                    continue;
-                }
-
-                var charIsDigit = char.IsDigit(expression[i]);
-                var charIsLetter = char.IsLetter(expression[i]);
-                var charIsPoint = expression[i] is '.';
-
-                if ((charIsDigit || charIsLetter || charIsPoint) && expression[i] != 'd')
-                {
-                    if (buffer.BufferString is null)
-                    {
-                        buffer.BufferString += expression[i];
-                        buffer.IsNumber = charIsDigit;
-                        continue;
-                    } 
-                    else if ((buffer.IsNumber && (charIsDigit || charIsPoint)) || (!buffer.IsNumber && charIsLetter))
-                    {
-                        buffer.BufferString += expression[i];
-                        continue;
-                    }
-                }
-
-                if (buffer.BufferString is not null)
-                {
-                    tokens.Add(buffer.BufferString);
-                    if (charIsDigit || charIsLetter)
-                    {
-                        buffer.BufferString = expression[i].ToString();
-                        buffer.IsNumber = charIsDigit;
-                    }
-                    else
-                    {
-                        tokens.Add(expression[i].ToString());
-                        buffer.BufferString = null;
-                    }
-                    continue;
-                }
-
-                tokens.Add(expression[i].ToString());
+                ResolveChar(inputExpression[i], tokens, ref buffer);
             }
 
             if (buffer.BufferString is not null)
@@ -63,42 +51,68 @@ namespace CliCalculator.Tokenizer
                 tokens.Add(buffer.BufferString);
             }
 
-            this.tokens = tokens;
+            return tokens;
         }
 
-        public IEnumerable<IToken> GetResult()
+        private static void ResolveChar(char ch, IList<string> tokens, ref Buffer buffer)
         {
-            var result = new List<IToken>();
-            for (var i = 0; i < this.tokens.Count; i++)
+            if (char.IsWhiteSpace(ch))
             {
-                switch (this.tokens[i])
-                {
-                    case var t when double.TryParse(t, NumberStyles.Any, CultureInfo.InvariantCulture, out var tDouble):
-                        result.Add(new OperandToken(tDouble));
-                        break;
-                    case var t when t is "-" && (result.LastOrDefault() is null or not (OperandToken or CloseParenthesisToken)):
-                        result.Add(new UnaryOperatorToken());
-                        break;
-                    case var t when BinaryOperatorToken.operatorSymbols.Contains(t[0]) :
-                        result.Add(new BinaryOperatorToken(t[0]));
-                        break;
-                    case "(":
-                        result.Add(new OpenParenthesisToken());
-                        break;
-                    case ")":
-                        result.Add(new CloseParenthesisToken());
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(this.tokens[i], $"Unexpected token: '{this.tokens[i]}', pos: {i + 1}:{i + 1 + this.tokens[i].Length}");
-                }
+                buffer.PopIntoList(tokens);
+                return;
             }
-            return result;
+
+            var charIsDigit = char.IsDigit(ch);
+            var charIsLetter = char.IsLetter(ch);
+            var charIsPoint = ch is '.';
+
+            if (charIsDigit || charIsLetter || charIsPoint)
+            {
+                if (buffer.BufferString is null)
+                {
+                    buffer.BufferString = ch.ToString();
+                    buffer.IsNumber = charIsDigit;
+                }
+                else if ((buffer.IsNumber && (charIsDigit || charIsPoint)) || (!buffer.IsNumber && charIsLetter))
+                {
+                    buffer.BufferString += ch.ToString();
+                }
+                return;
+            }
+
+            if (buffer.PopIntoList(tokens))
+            {
+                if (charIsDigit || charIsLetter)
+                {
+                    buffer.BufferString = ch.ToString();
+                    buffer.IsNumber = charIsDigit;
+                }
+                else
+                {
+                    tokens.Add(ch.ToString());
+                }
+                return;
+            }
+
+            tokens.Add(ch.ToString());
         }
 
         private struct Buffer
         {
             public string? BufferString { get; set; }
+
             public bool IsNumber { get; set; }
+
+            public bool PopIntoList(IList<string> list)
+            {
+                if (this.BufferString is null) 
+                    return false;
+
+                list.Add(BufferString);
+                this.BufferString = null;
+                this.IsNumber = false;
+                return true;
+            }
         }
     }
 }

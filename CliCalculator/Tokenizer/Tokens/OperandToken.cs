@@ -2,10 +2,10 @@
 {
     public class OperandToken : IToken
     {
-        public OperandToken(double digit)
+        public OperandToken(double d)
         {
-            Number = digit;
-            Symbol = digit.ToString();
+            Number = d;
+            Symbol = d.ToString();
         }
 
         public TokenType Type => TokenType.Operand;

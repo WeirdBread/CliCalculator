@@ -5,9 +5,9 @@ namespace CliCalculator.Notator
 {
     public static class PolishNotator
     {
-        public static IEnumerable<IToken> PolandizeTokens(IEnumerable<IToken> tokens)
+        public static TokenCollection PolandizeTokens(TokenCollection tokens)
         {
-            var result = new List<IToken>();
+            var result = new TokenCollection();
             var stack = new Stack<IToken>();
 
             foreach (var token in tokens)
@@ -19,22 +19,17 @@ namespace CliCalculator.Notator
                     case TokenType.Operand:
                         result.Add(token);
                         break;
-                    case TokenType.UnaryOperator:
-                        stack.Push(token);
-                        break;
-                    case TokenType.BinaryOperator:
-                        var operatorToken = (IOperator)token;
+                    case TokenType.Operator:
+                        var operatorToken = (OperatorToken)token;
                         while (stack.TryPeek(out var stackToken))
                         {
-                            if (stackToken is IOperator stackOperator && stackOperator.Priority >= operatorToken.Priority
-                                || (stackToken is UnaryOperatorToken && operatorToken.Priority > 0))
+                            if (stackToken is OperatorToken stackOperator && stackOperator.Priority >= operatorToken.Priority)
                             {
                                 result.Add(stack.Pop());
                                 continue;
                             }
                             break;
                         }
-
                         stack.Push(operatorToken);
                         break;
                     case TokenType.OpenParenthesis:
