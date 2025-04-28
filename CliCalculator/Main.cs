@@ -1,24 +1,23 @@
 ﻿using CliCalculator.Calculator;
 using CliCalculator.Tokenizer;
 using CliCalculator.Tokenizer.TokenFactories;
+using CliCalculator.Tokenizer.Tokens;
 using System.Globalization;
 {
     var buffer = 0d;
     while (true)
     {
-        char? firstKey = Console.ReadKey().KeyChar;
+        var input = Console.ReadLine();
 
-        var input = firstKey == '+' ? buffer.ToString("0.#####", CultureInfo.InvariantCulture) + "+" : firstKey.ToString();
-
-        input += Console.ReadLine();
+        if (!string.IsNullOrEmpty(input) && MathOperatorToken.operatorSymbols.Contains(input[0]))
+        {
+            input = buffer.ToString("0.#####", CultureInfo.InvariantCulture) + input[0] + input.Substring(1);
+        }
 
         if (string.IsNullOrWhiteSpace(input))
             return;
 
         var tokenizer = new Tokenizer(input, TokenFactory.Instance);
-
-        var tokens = tokenizer.GenerateTokens();
-        Console.WriteLine(tokens);
 
         try
         {

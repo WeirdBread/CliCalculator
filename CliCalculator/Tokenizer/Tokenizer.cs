@@ -80,20 +80,7 @@ namespace CliCalculator.Tokenizer
                 return;
             }
 
-            if (buffer.PopIntoList(tokens))
-            {
-                if (charIsDigit || charIsLetter)
-                {
-                    buffer.BufferString = ch.ToString();
-                    buffer.IsNumber = charIsDigit;
-                }
-                else
-                {
-                    tokens.Add(ch.ToString());
-                }
-                return;
-            }
-
+            buffer.PopIntoList(tokens);
             tokens.Add(ch.ToString());
         }
 
